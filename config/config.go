@@ -10,6 +10,7 @@ import (
 type BufferPoolConfig struct {
 	PageSize  types.PageSize `json:"page_size"`
 	PageCount int            `json:"page_count"`
+	PoolCount int            `json:"pool_count"`
 }
 type Config struct {
 	PoolConfig BufferPoolConfig `json:"buffer_pool"`

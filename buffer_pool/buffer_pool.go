@@ -3,9 +3,11 @@ package buffer_pool
 import "pidb/types"
 
 type BufferPool struct {
-	id    int //buffer pool id
-	size  int //in bytes
-	pages []*BufferPoolPage
+	id       int //buffer pool id
+	size     int //in bytes
+	occupied int
+	free     int
+	pages    []*BufferPoolPage
 }
 
 func NewBufferPool(pageSize types.PageSize, pageCount int) *BufferPool {
@@ -14,6 +16,8 @@ func NewBufferPool(pageSize types.PageSize, pageCount int) *BufferPool {
 	return &BufferPool{
 		0,
 		poolSize,
+		0,
+		pageCount,
 		bufferPoolPages,
 	}
 }
@@ -24,4 +28,14 @@ func allocatePoolSpace(pageSize types.PageSize, pageCount int) []*BufferPoolPage
 		pages[i] = NewBufferPoolPage(pageSize)
 	}
 	return pages
+}
+
+func (pool *BufferPool) getFreePage() *BufferPoolPage {
+	for _, page := range pool.pages {
+		if page.flags == 0 {
+			page.flags = 1
+			return page
+		}
+	}
+	return nil
 }

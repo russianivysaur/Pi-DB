@@ -13,3 +13,11 @@ func NewBufferPoolPage(pageSize types.PageSize) *BufferPoolPage {
 		make([]byte, pageSize),
 	}
 }
+
+// implements writer interface
+func (page *BufferPoolPage) Write(data []byte) (int, error) {
+	for i, b := range data {
+		page.contents[i] = b
+	}
+	return len(data), nil
+}
