@@ -1,0 +1,9 @@
+#B -> Bytes
+#M -> Megabytes
+#K -> Kilobytes
+#G -> Gigabytes
+buffer_pool:
+  page_size: 4B
+  page_count: 100
+
+#total pool_size = page_size * page_count
