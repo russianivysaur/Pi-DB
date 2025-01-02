@@ -2,7 +2,6 @@ package disk_manager
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -16,14 +15,13 @@ import "log"
 const logDirectory string = "disk_logs"
 
 type DiskManager struct {
-	databaseFileName  string
-	databaseFile      *os.File
-	bufferPoolManager *bufferPool.BufferPoolManager
-	logger            *log.Logger
-	config            config.Config
+	databaseFileName string
+	databaseFile     *os.File
+	logger           *log.Logger
+	config           config.Config
 }
 
-func NewDiskManager(fileName string, directory string, appContext context.Context) *DiskManager {
+func NewDiskManager(fileName string, directory string, conf config.Config) *DiskManager {
 	logger, err := createLogger(fileName)
 	if err != nil {
 		log.Fatalln(err)
@@ -32,35 +30,31 @@ func NewDiskManager(fileName string, directory string, appContext context.Contex
 	if err != nil {
 		log.Fatalln(err)
 	}
-	bufferPoolManager := createBufferPoolManager(appContext)
 	return &DiskManager{
-		databaseFileName:  fileName,
-		databaseFile:      dbFile,
-		bufferPoolManager: bufferPoolManager,
-		logger:            logger,
-		config:            appContext.Value("config").(config.Config),
+		databaseFileName: fileName,
+		databaseFile:     dbFile,
+		logger:           logger,
+		config:           conf,
 	}
 }
 
-func (manager *DiskManager) ReadPageFromDisk(pageNumber int) *bufferPool.BufferPoolPage {
+func (manager *DiskManager) ReadPageFromDisk(pageNumber int, buf *bufferPool.BufferPoolPage,
+	bufDesc *bufferPool.BufferPoolDescriptor) {
+	//write lock on the buffer
+	bufDesc.Lock.Lock()
+	defer bufDesc.Lock.Unlock()
 	pageSize := manager.config.PoolConfig.PageSize
 	_, err := manager.databaseFile.Seek(int64(pageSize)*int64(pageNumber), 0)
 	if err != nil {
 		log.Println(err)
-		return nil
+		return
 	}
 	bufReader := bufio.NewReader(manager.databaseFile)
-	freePage := manager.bufferPoolManager.FindFreePage()
-	_, err = io.Copy(freePage, bufReader)
+	_, err = io.Copy(buf, bufReader)
 	if err != nil {
 		log.Println(err)
-		return nil
+		return
 	}
-	return freePage
-}
-
-func createBufferPoolManager(appContext context.Context) *bufferPool.BufferPoolManager {
-	return bufferPool.NewBufferPoolManager(appContext)
 }
 
 func createLogger(fileName string) (*log.Logger, error) {

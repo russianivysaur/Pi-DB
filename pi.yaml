@@ -5,6 +5,5 @@
 buffer_pool:
   page_size: 4096 #in bytes
   page_count: 100
-  pool_count: 2
 
 #total pool_size = page_size * page_count
