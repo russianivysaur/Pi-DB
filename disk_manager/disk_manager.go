@@ -17,23 +17,17 @@ const logDirectory string = "disk_logs"
 type DiskManager struct {
 	databaseFileName string
 	databaseFile     *os.File
-	logger           *log.Logger
 	config           config.Config
 }
 
 func NewDiskManager(fileName string, directory string, conf config.Config) *DiskManager {
-	logger, err := createLogger(fileName)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	dbFile, err := openDatabaseFile(path.Join(directory, fileName), logger)
+	dbFile, err := openDatabaseFile(path.Join(directory, fileName))
 	if err != nil {
 		log.Fatalln(err)
 	}
 	return &DiskManager{
 		databaseFileName: fileName,
 		databaseFile:     dbFile,
-		logger:           logger,
 		config:           conf,
 	}
 }
@@ -43,7 +37,7 @@ func (manager *DiskManager) ReadPageFromDisk(pageNumber int, buf *bufferPool.Buf
 	//write lock on the buffer
 	bufDesc.Lock.Lock()
 	defer bufDesc.Lock.Unlock()
-	pageSize := manager.config.PoolConfig.PageSize
+	pageSize := manager.config.PoolConf.PageSize
 	_, err := manager.databaseFile.Seek(int64(pageSize)*int64(pageNumber), 0)
 	if err != nil {
 		log.Println(err)
@@ -75,7 +69,7 @@ func createLogger(fileName string) (*log.Logger, error) {
 	return logger, nil
 }
 
-func openDatabaseFile(path string, diskLogger *log.Logger) (*os.File, error) {
+func openDatabaseFile(path string) (*os.File, error) {
 	_, err := os.Stat(path)
 	if err != nil {
 		return nil, err

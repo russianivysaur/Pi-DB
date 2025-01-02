@@ -13,8 +13,8 @@ type BufferPool struct {
 }
 
 func NewBufferPool(conf config.Config) *BufferPool {
-	pageCount := conf.PoolConfig.PageCount
-	pageSize := conf.PoolConfig.PageSize
+	pageCount := conf.PoolConf.PageCount
+	pageSize := conf.PoolConf.PageSize
 
 	//pool pages and descriptors
 	pages := make([]*BufferPoolPage, pageCount)

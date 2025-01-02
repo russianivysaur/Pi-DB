@@ -1,9 +1,6 @@
-#B -> Bytes
-#M -> Megabytes
-#K -> Kilobytes
-#G -> Gigabytes
 buffer_pool:
   page_size: 4096 #in bytes
   page_count: 100
 
-#total pool_size = page_size * page_count
+server_config:
+  client_read_buffer_size: 4096 #bytes

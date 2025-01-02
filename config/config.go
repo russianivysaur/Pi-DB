@@ -11,8 +11,13 @@ type BufferPoolConfig struct {
 	PageSize  types.PageSize `json:"page_size"`
 	PageCount int            `json:"page_count"`
 }
+
+type ServerConfig struct {
+	ClientReadBufferSize int `json:"client_read_buffer_size"`
+}
 type Config struct {
-	PoolConfig BufferPoolConfig `json:"buffer_pool"`
+	PoolConf   BufferPoolConfig `json:"buffer_pool"`
+	ServerConf ServerConfig     `json:"server_config"`
 }
 
 func NewConfig(configFilePath string) *Config {
